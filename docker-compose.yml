@@ -1,0 +1,20 @@
+version: '3'
+services:
+  web:
+    build: .
+    container_name: 'car_dealer'
+    command: gunicorn --bind 0.0.0.0:8000 car_dealer.wsgi:application
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: car_dealer_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5433:5433"
