@@ -91,3 +91,20 @@ def car_list(request):
         'ordering': ordering,
     }
     return render(request, 'dealer/store_info.html', context)
+
+
+def transactions_summary(request):
+    total_bought_amount = Transaction.total_bought_amount()
+    total_sold_amount = Transaction.total_sold_amount()
+    total_transaction_count = Transaction.total_transaction_count()
+    total_bought_transaction_count = Transaction.total_bought_transaction_count()
+    total_sold_transaction_count = Transaction.total_sold_transaction_count()
+
+    context = {
+        'total_bought_amount': total_bought_amount,
+        'total_sold_amount': total_sold_amount,
+        'total_transaction_count': total_transaction_count,
+        'total_bought_transaction_count': total_bought_transaction_count,
+        'total_sold_transaction_count': total_sold_transaction_count,
+    }
+    return render(request, 'dealer/transactions.html', context)
