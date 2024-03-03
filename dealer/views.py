@@ -65,3 +65,29 @@ def store_info(request):
     store = Store.objects.first()  # Assuming there's only one store for simplicity
     cars = Car.objects.filter(store=store)
     return render(request, 'dealer/store_info.html', {'store': store, 'cars': cars})
+
+
+def car_list(request):
+    # Define the available ordering options and their corresponding database fields
+    ordering_options = {
+        'price': 'price',
+        '-price': '-price',
+        'make': 'make',
+        '-make': '-make',
+        'model': 'model',
+        '-model': '-model',
+        'submission_date': 'submission_date',
+        '-submission_date': '-submission_date',
+    }
+
+    # Get the user's selected ordering option, defaulting to 'price' if not provided or invalid
+    ordering = request.GET.get('ordering', 'price')
+    ordering_field = ordering_options.get(ordering, 'price')
+
+    cars = Car.objects.all().order_by(ordering_field)
+
+    context = {
+        'cars': cars,
+        'ordering': ordering,
+    }
+    return render(request, 'dealer/store_info.html', context)
