@@ -5,6 +5,7 @@
     <title>Store Info</title>
 </head>
 <body>
+{% block content %}
     <h1>Store Info</h1>
     <p>Store Name: {{ store.name }}</p>
     <p>Store Budget: {{ store.budget }}</p>
@@ -14,5 +15,6 @@
             <li>{{ car.make }} {{ car.model }} - ${{ car.price }} <a href="{% url 'buy_car' car.id %}">Buy</a></li>
         {% endfor %}
     </ul>
+{% endblock content %}
 </body>
 </html>

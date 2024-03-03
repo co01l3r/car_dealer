@@ -14,6 +14,17 @@ def submit_car(request):
                 car.save()
                 store.budget -= car.price
                 store.save()
+
+                # Create transaction object
+                Transaction.objects.create(
+                    car_make=car.make,
+                    car_model=car.model,
+                    buyer=store.name,
+                    seller='User',
+                    transaction_type='bought',
+                    transaction_amount=car.price
+                )
+
                 return redirect('store_info')
             else:
                 return render(request, 'error.html', {'message': 'Store does not have enough budget to buy this car.'})
@@ -34,7 +45,7 @@ def buy_car(request, car_id):
         car_model=car.model,
         buyer='User',
         seller=store.name,
-        transaction_type='buy',
+        transaction_type='sold',
         transaction_amount=transaction_amount
     )
 
