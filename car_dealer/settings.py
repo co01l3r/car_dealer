@@ -83,16 +83,16 @@ DATABASES = {
         'NAME': os.getenv('POSTGRES_DB', 'car_dealer_db'),
         'USER': os.getenv('POSTGRES_USER', 'admin'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'admin'),
-        'HOST': 'db',
-        'PORT': '5433',
+        'HOST': '172.17.0.1',
+        'PORT': '5432',
     },
     'test': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'test_car_dealer_db',
         'USER': 'admin',
         'PASSWORD': 'admin',
-        'HOST': 'db',
-        'PORT': '5433',
+        'HOST': '172.17.0.1',
+        'PORT': '5432',
     },
 }
 

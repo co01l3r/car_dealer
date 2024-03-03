@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Store Info</title>
+</head>
+<body>
+    <h1>Store Info</h1>
+    <p>Store Name: {{ store.name }}</p>
+    <p>Store Budget: {{ store.budget }}</p>
+    <h2>Inventory:</h2>
+    <ul>
+        {% for car in cars %}
+            <li>{{ car.make }} {{ car.model }} - ${{ car.price }} <a href="{% url 'buy_car' car.id %}">Buy</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
