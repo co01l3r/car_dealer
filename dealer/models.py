@@ -8,7 +8,7 @@ class Store(models.Model):
     name = models.CharField(max_length=100)
     budget = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -20,13 +20,13 @@ class Car(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name='cars')
     submission_date = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.make} - {self.model}"
 
 
 # transaction
 class Transaction(models.Model):
-    TRANSACTION_TYPES = (
+    TRANSACTION_TYPES: tuple = (
         ('bought', 'Bought'),
         ('sold', 'Sold'),
     )
@@ -40,7 +40,7 @@ class Transaction(models.Model):
     transaction_date = models.DateTimeField(auto_now_add=True)
 
     @classmethod
-    def total_bought_amount(cls):
+    def total_bought_amount(cls) -> float:
         try:
             total = cls.objects.filter(transaction_type='bought').aggregate(total=models.Sum('transaction_amount'))['total']
             return total or 0
@@ -49,7 +49,7 @@ class Transaction(models.Model):
             return 0
 
     @classmethod
-    def total_sold_amount(cls):
+    def total_sold_amount(cls) -> float:
         try:
             total = cls.objects.filter(transaction_type='sold').aggregate(total=models.Sum('transaction_amount'))['total']
             return total or 0
@@ -58,7 +58,7 @@ class Transaction(models.Model):
             return 0
 
     @classmethod
-    def total_transaction_count(cls):
+    def total_transaction_count(cls) -> int:
         try:
             return cls.objects.count()
         except Exception as e:
@@ -66,7 +66,7 @@ class Transaction(models.Model):
             return 0
 
     @classmethod
-    def total_bought_transaction_count(cls):
+    def total_bought_transaction_count(cls) -> int:
         try:
             return cls.objects.filter(transaction_type='bought').count()
         except Exception as e:
@@ -74,12 +74,12 @@ class Transaction(models.Model):
             return 0
 
     @classmethod
-    def total_sold_transaction_count(cls):
+    def total_sold_transaction_count(cls) -> int:
         try:
             return cls.objects.filter(transaction_type='sold').count()
         except Exception as e:
             logging.error(f"Error occurred while calculating total sold transaction count: {e}")
             return 0
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.transaction_type} - {self.transaction_amount} - {self.transaction_date}"
