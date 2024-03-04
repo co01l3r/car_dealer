@@ -3,12 +3,13 @@ import logging
 from django.contrib import messages
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpRequest, HttpResponse
 
 from .forms import CarForm
 from .models import Store, Car, Transaction
 
 
-def submit_car(request):
+def submit_car(request: HttpRequest) -> HttpResponse:
     if request.method == 'POST':
         form = CarForm(request.POST)
         if form.is_valid():
@@ -45,7 +46,7 @@ def submit_car(request):
     return render(request, 'dealer/submit_car_form.html', {'form': form})
 
 
-def buy_car(request, car_id):
+def buy_car(request: HttpRequest, car_id: int) -> HttpResponse:
     try:
         with transaction.atomic():
             car = get_object_or_404(Car, id=car_id)
@@ -78,7 +79,7 @@ def buy_car(request, car_id):
     return redirect('store_info')
 
 
-def store_info(request):
+def store_info(request: HttpRequest) -> HttpResponse:
     try:
         store = Store.objects.first()  # Assuming there's only one store for simplicity
         cars = Car.objects.filter(store=store)
@@ -89,7 +90,7 @@ def store_info(request):
         return redirect('store_info')
 
 
-def car_list(request):
+def car_list(request: HttpRequest) -> HttpResponse:
     try:
         ordering_options = {
             'price': 'price',
@@ -119,7 +120,7 @@ def car_list(request):
         return redirect('store_info')
 
 
-def transactions_summary(request):
+def transactions_summary(request: HttpRequest) -> HttpResponse:
     try:
         total_bought_amount = Transaction.total_bought_amount()
         total_sold_amount = Transaction.total_sold_amount()
