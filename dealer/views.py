@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect
 from .forms import CarForm
 from .models import Store, Car, Transaction
+from django.db import transaction
+import logging
+from django.contrib import messages
 
 
 def submit_car(request):
@@ -10,26 +13,29 @@ def submit_car(request):
             car = form.save(commit=False)
             store = Store.objects.first()  # Assuming there's only one store for simplicity
 
-            # Create car object and deduct the store budget by its price if fund are available
             if store.budget >= car.price:
-                car.store = store
-                car.save()
-                store.budget -= car.price
-                store.save()
+                try:
+                    with transaction.atomic():
+                        car.store = store
+                        car.save()
+                        store.budget -= car.price
+                        store.save()
 
-                # Create transaction object
-                Transaction.objects.create(
-                    car_make=car.make,
-                    car_model=car.model,
-                    buyer=store.name,
-                    seller='User',
-                    transaction_type='bought',
-                    transaction_amount=car.price
-                )
+                        Transaction.objects.create(
+                            car_make=car.make,
+                            car_model=car.model,
+                            buyer=store.name,
+                            seller='User',
+                            transaction_type='bought',
+                            transaction_amount=car.price
+                        )
 
-                return redirect('store_info')
+                        return redirect('store_info')
+                except Exception as e:
+                    logging.error(f"An error occurred while submitting car: {e}")
+                    messages.error(request, 'An unexpected error occurred. Please try again later.')
             else:
-                return render(request, 'error.html', {'message': 'Store does not have enough budget to buy this car.'})
+                messages.warning(request, 'The store does not have enough money to buy this car.')
     else:
         form = CarForm()
 

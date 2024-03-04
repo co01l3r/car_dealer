@@ -5,6 +5,7 @@
     <title>Submit Car</title>
 </head>
 <body>
+{% extends 'main.html' %}
 {% block content %}
     <h1>Submit Car</h1>
     <form action="{% url 'submit_car' %}" method="post">
