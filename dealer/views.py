@@ -77,9 +77,14 @@ def buy_car(request, car_id):
 
 
 def store_info(request):
-    store = Store.objects.first()  # Assuming there's only one store for simplicity
-    cars = Car.objects.filter(store=store)
-    return render(request, 'dealer/store_info.html', {'store': store, 'cars': cars})
+    try:
+        store = Store.objects.first()  # Assuming there's only one store for simplicity
+        cars = Car.objects.filter(store=store)
+        return render(request, 'dealer/store_info.html', {'store': store, 'cars': cars})
+    except Exception as e:
+        logging.error(f"An error occurred while fetching store information: {e}")
+        messages.error(request, 'An unexpected error occurred while fetching store information.')
+        return redirect('store_info')
 
 
 def car_list(request):
