@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import CarForm
 from .models import Store, Car, Transaction
 from django.db import transaction
@@ -21,6 +21,7 @@ def submit_car(request):
                         store.budget -= car.price
                         store.save()
 
+                        # Create transaction object
                         Transaction.objects.create(
                             car_make=car.make,
                             car_model=car.model,
@@ -43,30 +44,36 @@ def submit_car(request):
 
 
 def buy_car(request, car_id):
-    car = Car.objects.get(id=car_id)
-    store = car.store
-    transaction_amount = car.price
+    try:
+        with transaction.atomic():
+            car = get_object_or_404(Car, id=car_id)
+            store = car.store
+            transaction_amount = car.price
 
-    # Create transaction object
-    transaction = Transaction.objects.create(
-        car_make=car.make,
-        car_model=car.model,
-        buyer='User',
-        seller=store.name,
-        transaction_type='sold',
-        transaction_amount=transaction_amount
-    )
+            # Create transaction object
+            transaction_obj = Transaction.objects.create(
+                car_make=car.make,
+                car_model=car.model,
+                buyer='User',
+                seller=store.name,
+                transaction_type='sold',
+                transaction_amount=transaction_amount
+            )
 
-    # Check if the transaction object was created successfully and add money to the store from it
-    if transaction:
-        store.budget += transaction_amount
-        store.save()
+            if transaction_obj:
+                store.budget += transaction_amount
+                store.save()
 
-        car.delete()
+                car.delete()
 
-        return redirect('store_info')
-    else:
-        return render(request, 'error.html', {'message': 'Failed to create transaction object.'})
+                messages.success(request, 'Car successfully purchased.')
+                return redirect('store_info')
+
+    except Exception as e:
+        logging.error(f"An error occurred while buying car: {e}")
+        messages.error(request, 'An unexpected error occurred. Please try again later.')
+
+    return redirect('store_info')
 
 
 def store_info(request):
