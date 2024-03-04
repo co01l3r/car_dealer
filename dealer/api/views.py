@@ -1,13 +1,13 @@
 import logging
-from dealer.models import Store
-from .serializers import StoreSerializer, CarSerializer, TransactionSerializer
+from django.db import transaction
+from django.shortcuts import get_object_or_404
+
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
 from dealer.models import Car, Store, Transaction
-from django.db import transaction
-from django.shortcuts import get_object_or_404
-from django.db.models import Q
+from .serializers import StoreSerializer, CarSerializer, TransactionSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -25,8 +25,29 @@ def store_list_create_api_view(request):
         return Response(serializer.errors, status=400)
 
 
+@api_view(['GET'])
+def get_store_with_cars(request, pk):
+    try:
+        store = get_object_or_404(Store, pk=pk)
+        cars = Car.objects.filter(store=store)
+
+        store_serializer = StoreSerializer(store)
+        cars_serializer = CarSerializer(cars, many=True)
+
+        data = {
+            'store': store_serializer.data,
+            'cars': cars_serializer.data
+        }
+
+        return Response(data)
+    except Exception as e:
+        logging.error(f"An error occurred while fetching store information: {e}")
+        return Response({'error': 'An unexpected error occurred while fetching store information.'},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @api_view(['POST'])
-def submit_car(request):
+def submit_car_for_purchase(request):
     serializer = CarSerializer(data=request.data)
     if serializer.is_valid():
         car = serializer.save()
@@ -61,7 +82,7 @@ def submit_car(request):
 
 
 @api_view(['POST'])
-def buy_car(request, car_id):
+def purchase_car(request, car_id):
     try:
         with transaction.atomic():
             car = get_object_or_404(Car, id=car_id)
@@ -90,27 +111,6 @@ def buy_car(request, car_id):
         logging.error(f"An error occurred while buying car: {e}")
 
     return Response({'error': 'An unexpected error occurred. Please try again later.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@api_view(['GET'])
-def store_info(request):
-    try:
-        store = get_object_or_404(Store)
-        cars = Car.objects.filter(store=store)
-
-        store_serializer = StoreSerializer(store)
-        cars_serializer = CarSerializer(cars, many=True)
-
-        data = {
-            'store': store_serializer.data,
-            'cars': cars_serializer.data
-        }
-
-        return Response(data)
-    except Exception as e:
-        logging.error(f"An error occurred while fetching store information: {e}")
-        return Response({'error': 'An unexpected error occurred while fetching store information.'},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
