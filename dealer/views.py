@@ -1,9 +1,11 @@
+import logging
+
+from django.contrib import messages
+from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
+
 from .forms import CarForm
 from .models import Store, Car, Transaction
-from django.db import transaction
-import logging
-from django.contrib import messages
 
 
 def submit_car(request):
