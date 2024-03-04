@@ -1,5 +1,7 @@
 import logging
 
+from decimal import Decimal
+
 from django.db import models
 
 
@@ -40,7 +42,7 @@ class Transaction(models.Model):
     transaction_date = models.DateTimeField(auto_now_add=True)
 
     @classmethod
-    def total_bought_amount(cls) -> float:
+    def total_bought_amount(cls) -> Decimal:
         try:
             total = cls.objects.filter(transaction_type='bought').aggregate(total=models.Sum('transaction_amount'))['total']
             return total or 0
@@ -49,7 +51,7 @@ class Transaction(models.Model):
             return 0
 
     @classmethod
-    def total_sold_amount(cls) -> float:
+    def total_sold_amount(cls) -> Decimal:
         try:
             total = cls.objects.filter(transaction_type='sold').aggregate(total=models.Sum('transaction_amount'))['total']
             return total or 0
