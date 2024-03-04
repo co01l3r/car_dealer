@@ -6,10 +6,12 @@ from .views import (
     get_store_with_cars,
     car_list,
     transactions_summary,
-    transaction_list
+    transaction_list,
+    get_routes,
 )
 
 urlpatterns = [
+    path('', get_routes),
     path('stores/', store_list_create_api_view, name='store-list-create'),
     path('stores/<int:pk>/', get_store_with_cars, name='store-detail'),
     path('cars/', car_list, name='car-list'),

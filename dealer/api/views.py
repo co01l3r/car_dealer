@@ -3,6 +3,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 
 from rest_framework import status
+from rest_framework.request import Request
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -10,8 +11,43 @@ from dealer.models import Car, Store, Transaction
 from .serializers import StoreSerializer, CarSerializer, TransactionSerializer
 
 
+@api_view(['GET'])
+def get_routes(request):
+    """
+    Get a list of available API endpoints.
+
+    Returns:
+        Response: A JSON response containing a list of available API endpoints.
+    """
+    routes = [
+        '/api/stores',
+        '/api/stores/<int:pk>',
+
+        '/api/cars',
+        '/api/car_list/?ordering=ORDERING_OPTION>',
+        '/api/cars/submit',
+        '/api/cars/<int:pk>/buy',
+
+        '/api/transactions/',
+        '/api/transactions/summary',
+    ]
+    return Response(routes)
+
+
 @api_view(['GET', 'POST'])
-def store_list_create_api_view(request):
+def store_list_create_api_view(request: Request) -> Response:
+    """
+    API view for listing and creating stores.
+
+    Args:
+        request (Request): The HTTP request object.
+
+    Returns:
+        Response: The HTTP response containing store data or validation errors.
+
+    Raises:
+        None
+    """
     if request.method == 'GET':
         stores = Store.objects.all()
         serializer = StoreSerializer(stores, many=True)
@@ -26,7 +62,21 @@ def store_list_create_api_view(request):
 
 
 @api_view(['GET'])
-def get_store_with_cars(request, pk):
+def get_store_with_cars(request: Request, pk: int) -> Response:
+    """
+    API view for retrieving a store along with its associated cars.
+
+    Args:
+        request (Request): The HTTP request object.
+        pk (int): The primary key of the store to retrieve.
+
+    Returns:
+        Response: The HTTP response containing store and cars data.
+
+    Raises:
+        HTTP 404 Error: If the requested store does not exist.
+        HTTP 500 Error: If an unexpected error occurs while fetching store information.
+    """
     try:
         store = get_object_or_404(Store, pk=pk)
         cars = Car.objects.filter(store=store)
@@ -47,7 +97,21 @@ def get_store_with_cars(request, pk):
 
 
 @api_view(['POST'])
-def submit_car_for_purchase(request):
+def submit_car_for_purchase(request: Request) -> Response:
+    """
+    API view for submitting a car for purchase.
+
+    Args:
+        request (Request): The HTTP request object containing car data.
+
+    Returns:
+        Response: The HTTP response indicating the success or failure of the car submission.
+
+    Raises:
+        HTTP 400 Error: If the request data is invalid.
+        HTTP 400 Error: If the store does not have enough budget to buy the car.
+        HTTP 500 Error: If an unexpected error occurs during the car submission process.
+    """
     serializer = CarSerializer(data=request.data)
     if serializer.is_valid():
         car = serializer.save()
@@ -82,7 +146,20 @@ def submit_car_for_purchase(request):
 
 
 @api_view(['POST'])
-def purchase_car(request, car_id):
+def purchase_car(request: Request, car_id: int) -> Response:
+    """
+    API view for purchasing a car.
+
+    Args:
+        request (Request): The HTTP request object.
+        car_id (int): The ID of the car to be purchased.
+
+    Returns:
+        Response: The HTTP response indicating the success or failure of the car purchase.
+
+    Raises:
+        HTTP 500 Error: If an unexpected error occurs during the car purchase process.
+    """
     try:
         with transaction.atomic():
             car = get_object_or_404(Car, id=car_id)
@@ -114,7 +191,19 @@ def purchase_car(request, car_id):
 
 
 @api_view(['GET'])
-def car_list(request):
+def car_list(request: Request) -> Response:
+    """
+    API view for listing cars.
+
+    Args:
+        request (Request): The HTTP request object.
+
+    Returns:
+        Response: The HTTP response containing the list of cars.
+
+    Raises:
+        HTTP 500 Error: If an unexpected error occurs while fetching the list of cars.
+    """
     try:
         ordering_options = {
             'price': 'price',
@@ -142,7 +231,19 @@ def car_list(request):
 
 
 @api_view(['GET'])
-def transactions_summary(request):
+def transactions_summary(request: Request) -> Response:
+    """
+    API view for summarizing transactions.
+
+    Args:
+        request (Request): The HTTP request object.
+
+    Returns:
+        Response: The HTTP response containing the summary of transactions.
+
+    Raises:
+        HTTP 500 Error: If an unexpected error occurs while summarizing transactions.
+    """
     try:
         total_bought_amount = Transaction.total_bought_amount()
         total_sold_amount = Transaction.total_sold_amount()
@@ -165,7 +266,19 @@ def transactions_summary(request):
 
 
 @api_view(['GET'])
-def transaction_list(request):
+def transaction_list(request: Request) -> Response:
+    """
+    API view for listing transactions.
+
+    Args:
+        request (Request): The HTTP request object.
+
+    Returns:
+        Response: The HTTP response containing the list of transactions.
+
+    Raises:
+        HTTP 500 Error: If an unexpected error occurs while fetching the transactions.
+    """
     try:
         transactions = Transaction.objects.all()
         serializer = TransactionSerializer(transactions, many=True)

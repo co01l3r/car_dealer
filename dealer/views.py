@@ -11,6 +11,18 @@ from .models import Store, Car, Transaction
 
 
 def submit_car(request: HttpRequest) -> HttpResponse:
+    """
+    View function for submitting a car.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response after submitting the car.
+
+    Raises:
+        Redirect: If the form submission is successful, redirects to the store information page.
+    """
     if request.method == 'POST':
         form = CarForm(request.POST)
         if form.is_valid():
@@ -48,6 +60,19 @@ def submit_car(request: HttpRequest) -> HttpResponse:
 
 
 def buy_car(request: HttpRequest, car_id: int) -> HttpResponse:
+    """
+    View function for purchasing a car.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        car_id (int): The ID of the car to purchase.
+
+    Returns:
+        HttpResponse: The HTTP response after purchasing the car.
+
+    Raises:
+        Redirect: If the car is successfully purchased, redirects to the store information page.
+    """
     try:
         with transaction.atomic():
             car = get_object_or_404(Car, id=car_id)
@@ -81,6 +106,18 @@ def buy_car(request: HttpRequest, car_id: int) -> HttpResponse:
 
 
 def store_info(request: HttpRequest) -> HttpResponse:
+    """
+    View function for displaying store information.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response containing the store information.
+
+    Raises:
+        Redirect: If an unexpected error occurs, redirects to the store information page.
+    """
     try:
         store = Store.objects.first()  # Assuming there's only one store for simplicity
         cars = Car.objects.filter(store=store)
@@ -92,6 +129,18 @@ def store_info(request: HttpRequest) -> HttpResponse:
 
 
 def car_list(request: HttpRequest) -> HttpResponse:
+    """
+    View function for displaying a list of cars with optional ordering.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response containing the list of cars.
+
+    Raises:
+        Redirect: If an unexpected error occurs, redirects to the store information page.
+    """
     try:
         ordering_options = {
             'price': 'price',
@@ -122,6 +171,18 @@ def car_list(request: HttpRequest) -> HttpResponse:
 
 
 def transactions_summary(request: HttpRequest) -> HttpResponse:
+    """
+    View function for displaying a summary of transactions.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response containing the summary of transactions.
+
+    Raises:
+        Redirect: If an unexpected error occurs, redirects to the store information page.
+    """
     try:
         total_bought_amount = Transaction.total_bought_amount()
         total_sold_amount = Transaction.total_sold_amount()
