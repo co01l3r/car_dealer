@@ -90,28 +90,33 @@ def store_info(request):
 
 
 def car_list(request):
-    ordering_options = {
-        'price': 'price',
-        '-price': '-price',
-        'make': 'make',
-        '-make': '-make',
-        'model': 'model',
-        '-model': '-model',
-        'submission_date': 'submission_date',
-        '-submission_date': '-submission_date',
-    }
+    try:
+        ordering_options = {
+            'price': 'price',
+            '-price': '-price',
+            'make': 'make',
+            '-make': '-make',
+            'model': 'model',
+            '-model': '-model',
+            'submission_date': 'submission_date',
+            '-submission_date': '-submission_date',
+        }
 
-    # Get the user's selected ordering option, defaulting to 'price' if not provided or invalid
-    ordering = request.GET.get('ordering', 'price')
-    ordering_field = ordering_options.get(ordering, 'price')
+        # Get the user's selected ordering option, defaulting to 'price' if not provided or invalid
+        ordering = request.GET.get('ordering', 'price')
+        ordering_field = ordering_options.get(ordering, 'price')
 
-    cars = Car.objects.all().order_by(ordering_field)
+        cars = Car.objects.all().order_by(ordering_field)
 
-    context = {
-        'cars': cars,
-        'ordering': ordering,
-    }
-    return render(request, 'dealer/store_info.html', context)
+        context = {
+            'cars': cars,
+            'ordering': ordering,
+        }
+        return render(request, 'dealer/store_info.html', context)
+    except Exception as e:
+        logging.error(f"An error occurred in car_list view: {e}")
+        messages.error(request, 'An unexpected error occurred. Please try again later.')
+        return redirect('store_info')
 
 
 def transactions_summary(request):
