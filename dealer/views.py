@@ -9,6 +9,8 @@ def submit_car(request):
         if form.is_valid():
             car = form.save(commit=False)
             store = Store.objects.first()  # Assuming there's only one store for simplicity
+
+            # Create car object and deduct the store budget by its price if fund are available
             if store.budget >= car.price:
                 car.store = store
                 car.save()
@@ -49,7 +51,7 @@ def buy_car(request, car_id):
         transaction_amount=transaction_amount
     )
 
-    # Check if the transaction object was created successfully
+    # Check if the transaction object was created successfully and add money to the store from it
     if transaction:
         store.budget += transaction_amount
         store.save()
@@ -68,7 +70,6 @@ def store_info(request):
 
 
 def car_list(request):
-    # Define the available ordering options and their corresponding database fields
     ordering_options = {
         'price': 'price',
         '-price': '-price',

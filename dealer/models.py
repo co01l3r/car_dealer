@@ -1,4 +1,5 @@
 from django.db import models
+import logging
 
 
 # store
@@ -39,23 +40,45 @@ class Transaction(models.Model):
 
     @classmethod
     def total_bought_amount(cls):
-        return cls.objects.filter(transaction_type='bought').aggregate(total=models.Sum('transaction_amount'))['total'] or 0
+        try:
+            total = cls.objects.filter(transaction_type='bought').aggregate(total=models.Sum('transaction_amount'))['total']
+            return total or 0
+        except Exception as e:
+            logging.error(f"Error occurred while calculating total bought amount: {e}")
+            return 0
 
     @classmethod
     def total_sold_amount(cls):
-        return cls.objects.filter(transaction_type='sold').aggregate(total=models.Sum('transaction_amount'))['total'] or 0
+        try:
+            total = cls.objects.filter(transaction_type='sold').aggregate(total=models.Sum('transaction_amount'))['total']
+            return total or 0
+        except Exception as e:
+            logging.error(f"Error occurred while calculating total sold amount: {e}")
+            return 0
 
     @classmethod
     def total_transaction_count(cls):
-        return cls.objects.count()
+        try:
+            return cls.objects.count()
+        except Exception as e:
+            logging.error(f"Error occurred while calculating total transaction count: {e}")
+            return 0
 
     @classmethod
     def total_bought_transaction_count(cls):
-        return cls.objects.filter(transaction_type='bought').count()
+        try:
+            return cls.objects.filter(transaction_type='bought').count()
+        except Exception as e:
+            logging.error(f"Error occurred while calculating total bought transaction count: {e}")
+            return 0
 
     @classmethod
     def total_sold_transaction_count(cls):
-        return cls.objects.filter(transaction_type='sold').count()
+        try:
+            return cls.objects.filter(transaction_type='sold').count()
+        except Exception as e:
+            logging.error(f"Error occurred while calculating total sold transaction count: {e}")
+            return 0
 
     def __str__(self):
         return f"{self.transaction_type} - {self.transaction_amount} - {self.transaction_date}"
