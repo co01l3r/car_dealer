@@ -91,7 +91,7 @@ DATABASES = {
         'NAME': 'test_car_dealer_db',
         'USER': 'admin',
         'PASSWORD': 'admin',
-        'HOST': '172.17.0.1',
+        'HOST': 'localhost',
         'PORT': '5432',
     },
 }
