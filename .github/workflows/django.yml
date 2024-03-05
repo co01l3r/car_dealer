@@ -36,6 +36,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Check if test database exists
+      run: |
+        python manage.py test -k && echo "Test database exists" || echo "Test database doesn't exist"
     - name: Run Tests
       run: |
         coverage run manage.py test
